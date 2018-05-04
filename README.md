@@ -1,4 +1,10 @@
-# bicycle_turn_signal
-Runs two addressable RGB LED strips as turn signals and brakes for a bicycle.
+# Bicycle Turn Signal 
+Since I spend most of my work day and free-time sitting on my butt I try to make up for it by riding my bike instead of driving whenever possible. Riding on the streets, especially around campus, can be a little dangerous from time to time so I decided to add a smidge of extra safety.
 
-This code was written for WS2812B led strips using the Adafruit NeoPixel library and an Arduino like microcontroller.
+
+# Parts
+- WS2812B addressable RGB LED strip
+- Arduino Pro Mini 5V
+- USB battery pack
+- USB cable
+- Bicycle (duh)
