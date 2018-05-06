@@ -88,10 +88,12 @@ void loop() {
   /* Check if either of the turn signal buttons have pressed */
   if(digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
     leftIsOn = !leftIsOn;
+    rightIsON = 0;
     time = millis();
   }
   if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
     rightIsON = !rightIsON;
+    leftIsON = 0;
     time = millis();
   }
 
