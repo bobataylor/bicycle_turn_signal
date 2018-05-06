@@ -1,78 +1,83 @@
 #include <Adafruit_NeoPixel.h>
 
-#define LEFT  2
-#define RIGHT 3
-#define BRAKE 4
-#define RL 10
-#define LL 11
-#define LEDS 27
-#define LED 14
+#define LEFT_TURN_SIGNAL_BUTTON  2
+#define RIGHT_TURN_SIGNAL_BUTTON 3
+#define BRAKE_SWITCH 4
+#define LEFT_TURN_SIGNAL_DATA  10
+#define RIGHT_TURN_SIGNAL_DATA 11
+#define NUM_LEDS 27
+#define TURN_SIGNAL_IND 14
 
-// Setup for the LED strip
-Adafruit_NeoPixel strip  = Adafruit_NeoPixel(LEDS, RL, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel stripR = Adafruit_NeoPixel(LEDS, LL, NEO_GRB + NEO_KHZ800);
+/* Setup for the LED strips */
+Adafruit_NeoPixel stripL = Adafruit_NeoPixel(NUM_LEDS, RIGHT_TURN_SIGNAL_DATA, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel stripR = Adafruit_NeoPixel(NUM_LEDS, LEFT_TURN_SIGNAL_DATA, NEO_GRB + NEO_KHZ800);
 
-uint32_t off = strip.Color(0, 0, 0);
-uint32_t red = strip.Color(255, 0, 0);
-uint32_t orange = strip.Color(128, 128, 0);
+/* Create color objects */
+uint32_t off    = stripL.Color(0, 0, 0);
+uint32_t red    = stripL.Color(255, 0, 0);
+uint32_t orange = stripL.Color(128, 128, 0);
 
-int left=0, right=0, brake=0;
+int leftIsON=0, rightIsON=0, brakeIsOn=0;
 long time = 0, flash = 0, debounce = 200;
 
 void setup() {
-  strip.begin();
-  strip.show();
+  /* Init LED strips to off */
+  stripL.begin();
+  stripL.show();
   stripR.begin();
   stripR.show();
-  pinMode(LEFT, INPUT); // setup pins as inputs
+
+  /* Configure input pins with pullup resistors */
+  pinMode(LEFT, INPUT);
   pinMode(RIGHT, INPUT);
   pinMode(BRAKE, INPUT);
-  digitalWrite(LEFT, HIGH); // enable pull up resistors
+  digitalWrite(LEFT, HIGH);
   digitalWrite(RIGHT, HIGH);
   digitalWrite(BRAKE, HIGH);
 
+  /* Configure output pins */
   pinMode(LED, OUTPUT);
 }
 
+/* Flashes the left turn signal */
 void left_turn(){
-  if(left){
-    // flash turn signal
-    if(flash % 500 < 250){
-      digitalWrite(LED, HIGH);
-      for(int i=0; i<LEDS; i++){
-        strip.setPixelColor(i, orange);
+  if(leftIsOn){
+    if(flash % 334 < 167){
+      digitalWrite(TURN_SIGNAL_IND, HIGH);
+      for(int i=0; i<NUM_LEDS; i++){
+        stripL.setPixelColor(i, orange);
       }
     } else {
-      digitalWrite(LED, LOW);
-      for(int i=0; i<LEDS; i++){
-        strip.setPixelColor(i, off);
+      digitalWrite(TURN_SIGNAL_IND, LOW);
+      for(int i=0; i<NUM_LEDS; i++){
+        stripL.setPixelColor(i, off);
       }
     }
-  } else if(strip.getPixelColor(LEDS-1) == orange){
-    digitalWrite(LED, LOW);
-    for(int i=0; i<LEDS; i++){
-      strip.setPixelColor(i, off);
+  } else if(stripL.getPixelColor(NUM_LEDS-1) == orange){
+    digitalWrite(TURN_SIGNAL_IND, LOW);
+    for(int i=0; i<NUM_LEDS; i++){
+      stripL.setPixelColor(i, off);
     }
   }
 }
 
+/* Flashes the right turn signal */
 void right_turn(){
-  if(right){
-    // flash turn signal
-    if(flash % 500 < 250){
-      digitalWrite(LED, HIGH);
-      for(int i=0; i<LEDS; i++){
+  if(rightIsON){
+    if(flash % 334 < 167){
+      digitalWrite(TURN_SIGNAL_IND, HIGH);
+      for(int i=0; i<NUM_LEDS; i++){
         stripR.setPixelColor(i, orange);
       }   
     } else {
-      digitalWrite(LED, LOW);
-      for(int i=0; i<LEDS; i++){
+      digitalWrite(TURN_SIGNAL_IND, LOW);
+      for(int i=0; i<NUM_LEDS; i++){
         stripR.setPixelColor(i, off);
       }
     }
-  } else if(stripR.getPixelColor(LEDS-1) == orange){
-    digitalWrite(LED, LOW);
-    for(int i=0; i<LEDS; i++){
+  } else if(stripR.getPixelColor(NUM_LEDS-1) == orange){
+    digitalWrite(TURN_SIGNAL_IND, LOW);
+    for(int i=0; i<NUM_LEDS; i++){
       stripR.setPixelColor(i, off);
     }
   }
@@ -80,35 +85,38 @@ void right_turn(){
 
 
 void loop() {
-  if(digitalRead(LEFT) == LOW && millis() - time > debounce){
-    left = !left;
+  /* Check if either of the turn signal buttons have pressed */
+  if(digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
+    leftIsOn = !leftIsOn;
     time = millis();
   }
-  if(digitalRead(RIGHT) == LOW && millis() - time > debounce){
-    right = !right;
+  if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
+    rightIsON = !rightIsON;
     time = millis();
   }
+
+  /* Call the turn signal methds to update the LED as needed */
   left_turn();
   right_turn();
   
   /* Turns the brakes on whenever the brake button is pressed, then turns them off when it is not pressed.
-   *  Also, it respects the turn signals, and will not interfere with them turning the lights orange.
+   *  Also, it respects the turn signals, and will not overwrite them.
    */
   if(digitalRead(BRAKE) == LOW){
-    brake = 1;
-    for(int i=0; i<LEDS; i++){
-      if(strip.getPixelColor(i) == off){
-        strip.setPixelColor(i, red);
+    brakeIsOn = 1;
+    for(int i=0; i<NUM_LEDS; i++){
+      if(stripL.getPixelColor(i) == off){
+        stripL.setPixelColor(i, red);
       }
       if(stripR.getPixelColor(i) == off){
         stripR.setPixelColor(i, red);
       }
     }
-  } else if(brake == 1){
-    brake = 0;
-    for(int i=0; i<LEDS; i++){
-      if(strip.getPixelColor(i) == red){
-        strip.setPixelColor(i, off);
+  } else if(brakeIsOn == 1){
+    brakeIsON = 0;
+    for(int i=0; i<NUM_LEDS; i++){
+      if(stripL.getPixelColor(i) == red){
+        stripL.setPixelColor(i, off);
       }
       if(stripR.getPixelColor(i) == red){
         stripR.setPixelColor(i, off);
@@ -116,7 +124,10 @@ void loop() {
     }
   }
   
-  strip.show(); // only call to strip.show(), updates all the leds at the same time
+  /* Update the color of the LEDs. Only call it once each iteration to prevent a visual flashing effect */
+  stripL.show();
   stripR.show();
+
+  /* Update the flash timer */
   flash = millis();
 }
