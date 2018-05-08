@@ -17,7 +17,7 @@ uint32_t off    = stripL.Color(0, 0, 0);
 uint32_t red    = stripL.Color(255, 0, 0);
 uint32_t orange = stripL.Color(128, 128, 0);
 
-int leftIsON=0, rightIsON=0, brakeIsOn=0;
+int leftIsON=0, rightIsON=0, brakeIsOn=0, stateLeft = 0, stateRight = 0;
 long time = 0, flash = 0, debounce = 200;
 
 void setup() {
@@ -86,15 +86,21 @@ void right_turn(){
 
 void loop() {
   /* Check if either of the turn signal buttons have pressed */
-  if(digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
+  if(digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce && stateLeft == 0){
     leftIsOn = !leftIsOn;
     rightIsON = 0;
+    stateLeft = 1;
     time = millis();
+  } else {
+    stateLeft = 0;
   }
-  if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce){
+  if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && millis() - time > debounce && stateRight == 0){
     rightIsON = !rightIsON;
     leftIsON = 0;
+    stateRight = 1;
     time = millis();
+  } else {
+    stateRight = 0;
   }
 
   /* Call the turn signal methds to update the LED as needed */
