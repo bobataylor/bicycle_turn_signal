@@ -109,8 +109,7 @@ void loop() {
   }
   if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW){
     // Turn on night mode, this means the brake lights will constantly be on at a lower level
-    stripL.setbrightness(NIGHT_MODE_BRIGHTNESS);
-    stripR.setbrightness(NIGHT_MODE_BRIGHTNESS);
+    off    = stripL.Color(32, 0, 0);
   }
 
   /* Call the turn signal methds to update the LED as needed */
