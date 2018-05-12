@@ -7,6 +7,7 @@
 #define RIGHT_TURN_SIGNAL_DATA 11
 #define NUM_LEDS 27
 #define TURN_SIGNAL_IND 14
+#define NIGHT_MODE_BRIGHTNESS 50
 
 /* Setup for the LED strips */
 Adafruit_NeoPixel stripL = Adafruit_NeoPixel(NUM_LEDS, RIGHT_TURN_SIGNAL_DATA, NEO_GRB + NEO_KHZ800);
@@ -105,6 +106,11 @@ void loop() {
     stateRight = 1;
   } else {
     stateRight = 0;
+  }
+  if(digitalRead(RIGHT_TURN_SIGNAL_BUTTON) == LOW && digitalRead(LEFT_TURN_SIGNAL_BUTTON) == LOW){
+    // Turn on night mode, this means the brake lights will constantly be on at a lower level
+    stripL.setbrightness(NIGHT_MODE_BRIGHTNESS);
+    stripR.setbrightness(NIGHT_MODE_BRIGHTNESS);
   }
 
   /* Call the turn signal methds to update the LED as needed */
